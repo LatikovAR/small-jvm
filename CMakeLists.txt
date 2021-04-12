@@ -14,7 +14,9 @@ set(SOURCE_LIST
     vm.cpp
 )
 
-add_subdirectory (mem)
+include_directories(memalloc gc)
+
+add_subdirectory (memalloc)
 
 add_compile_options(-Wall -Wextra)
 
