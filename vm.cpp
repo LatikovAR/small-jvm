@@ -4,6 +4,8 @@
 
 #include "opcodes.h"
 
+#include "gc.h"
+
 
 JavaVM::JavaVM() {
     // 1. TODO - fill const pull

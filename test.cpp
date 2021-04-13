@@ -53,8 +53,6 @@ void RunTest(ExecType type, int it) {
 
 
 void Test(int id) {
-    time_t t = time(NULL);
-    srand(t);
 
     switch(id) {
         // ------------------------------------------------
@@ -102,6 +100,7 @@ void Test(int id) {
 
 
 void Test_iconst_i(uint8_t bytecodes[2], uint8_t i) {
+
     // Initialize VM
     JavaVM vm;
 

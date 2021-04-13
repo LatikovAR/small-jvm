@@ -1,4 +1,8 @@
+#define NO_FREERTOS
+
 #include <stdio.h>
+#include <ctime>
+#include <cstdlib>
 #ifndef NO_FREERTOS
 #include <devices.h>
 #include <task.h>
@@ -19,7 +23,7 @@ void vTask() {
         RunTest(ONE_TEST, iand);
         RunTest(ONE_TEST, iadd);
         RunTest(ONE_TEST, invokestatic);
-
+        break;
 #ifndef NO_FREERTOS
         vTaskDelay(2000 / portTICK_RATE_MS);
 #endif
@@ -39,6 +43,7 @@ int main()
     // Call default test case
     getchar();
 
+    srand(time(0));
 #ifndef NO_FREERTOS
     xTaskCreate(vTask, "vTask", 20480, NULL, 3, NULL);
 
