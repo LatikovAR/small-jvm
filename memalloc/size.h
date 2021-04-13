@@ -37,8 +37,8 @@ public:
     bool operator<(const Size& s) const { return sz_ < s.sz_; }
     bool operator<=(const Size& s) const { return sz_ >= s.sz_; }
 
-    static const Size zero;
-    static const Size max;
+    static Size zero() { return Size{0}; };
+    static Size max() { return Size{std::numeric_limits<size_t>::max()}; };
 
     bool static non_zero(const Size& s) { return s.sz_ != 0; }
 
@@ -57,14 +57,11 @@ private:
     friend std::ostream& operator<<(std::ostream& os, const Size& sz);
 };
 
-const Size Size::zero{0};
-const Size Size::max{std::numeric_limits<size_t>::max()};
-
-Size Sum(const Size& LHS, const Size& RHS) {
+inline Size Sum(const Size& LHS, const Size& RHS) {
     return LHS + RHS;
 }
 
-std::ostream& operator<<(std::ostream& os, const Size& sz) {
+inline std::ostream& operator<<(std::ostream& os, const Size& sz) {
     os << std::dec << sz.sz_ << " bytes";
     return os;
 }

@@ -83,9 +83,9 @@ private:
     const void* highest_;
 };
 
-bool not_null(const AddrSpace::Address& A) { return !A.IsNull(); }
+inline bool not_null(const AddrSpace::Address& A) { return !A.IsNull(); }
 
-std::ostream& operator<<(std::ostream& os, const AddrSpace::Address& addr) {
+inline std::ostream& operator<<(std::ostream& os, const AddrSpace::Address& addr) {
     os << std::hex << addr.addr_;
     return os;
 }

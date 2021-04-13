@@ -5,6 +5,8 @@
 #include <stdint.h>
 #include <assert.h>
 
+#include "gc.h"
+
 #define TEST
 
 #define CONST_PULL_SIZE 8
@@ -71,6 +73,8 @@ private:
         uint8_t* local_variable_;
         uint64_t sp_;
 
+        Memory memory_;
+        Gc gc_;
     public:
         Frame();
         Frame(uint16_t size_stack, uint16_t size_locals);

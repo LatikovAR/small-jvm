@@ -12,7 +12,7 @@
 
 class Block : public DlElt<Block>, public GcInfo {
 public:
-    static const Size HeaderSize;
+    static Size HeaderSize() { return Size{align(sizeof(Block))}; }
     using Address = AddrSpace::Address;
 
     // size should include header size
@@ -30,25 +30,25 @@ public:
 
     static Block& MakeAtAddress(const Address& addr, const Size& sz) {
         assert(not_null(addr));
-        assert(sz > HeaderSize);
+        assert(sz > HeaderSize());
         return *(new(const_cast<void*>(addr.addr_)) Block{sz});
     }
 
     void* ToUserData() const {
-        return reinterpret_cast<void*>(reinterpret_cast<uintptr_t>(this) + static_cast<size_t>(HeaderSize));
+        return reinterpret_cast<void*>(reinterpret_cast<uintptr_t>(this) + static_cast<size_t>(HeaderSize()));
     }
 
     size_t GetUserDataSize() const {
-        return static_cast<size_t>(size_ - HeaderSize);
+        return static_cast<size_t>(size_ - HeaderSize());
     }
 
     static Block& FromUserData(void *ptr) {
-        return *reinterpret_cast<Block*>(reinterpret_cast<uintptr_t>(ptr) - static_cast<size_t>(HeaderSize));
+        return *reinterpret_cast<Block*>(reinterpret_cast<uintptr_t>(ptr) - static_cast<size_t>(HeaderSize()));
     }
 
     bool operator==(const Block& rhs) const { return GetAddress() == rhs.GetAddress(); }
 
-    bool Splittable() const { return size_ > (HeaderSize + HeaderSize); }
+    bool Splittable() const { return size_ > (HeaderSize() + HeaderSize()); }
 
     bool InBlock(const Address& addr) { return addr >= GetAddress() && addr < NextBlockAddress(); }
 
@@ -63,9 +63,7 @@ private:
     friend std::ostream& operator<<(std::ostream& os, const Block& b);
 };
 
-const Size Block::HeaderSize{align(sizeof(Block))};
-
-std::ostream& operator<<(std::ostream& os, const Block& b) {
+inline std::ostream& operator<<(std::ostream& os, const Block& b) {
     os << "Addr: " << b.GetAddress()
        << ", Size: " << b.GetSize()
        << ", " << (b.IsFree() ? "Free" : "Occupied")

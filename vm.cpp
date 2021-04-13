@@ -212,10 +212,9 @@ void JavaVM::Execute_bipush(uint8_t* bc) {
 
 void JavaVM::CreateFrame(MethodInfo* info) {
     fp_++;
-    Frame* new_frame = new Frame;
+    Frame* new_frame = new Frame(info->code_info_.max_stack_,
+                                 info->code_info_.max_locals_);
     frame_[fp_] = new_frame;
-    new_frame->CreateStackAndLocalVars(info->code_info_.max_stack_,
-                                       info->code_info_.max_locals_);
     curr_frame_ = new_frame;
 }
 
@@ -226,9 +225,8 @@ void JavaVM::DeleteFrame() {
 }
 
 void JavaVM::CreateFirstFrame() {
-    curr_frame_ = new Frame;
+    curr_frame_ = new Frame(STACK_SIZE, LOCAL_SIZE);
     frame_[fp_] = curr_frame_; 
-    curr_frame_->CreateStackAndLocalVars(STACK_SIZE, LOCAL_SIZE);
 }
 
 
@@ -285,22 +283,15 @@ void JavaVM::MethodInfo::CodeAttribute::UploadCode(
     memcpy (code_, code, size);
 }
 
-JavaVM::Frame::Frame() :
-    size_operand_stack_ (0),
-    operand_stack_ (nullptr),
-    return_value_ (0),
-    size_local_variable_ (0),
-    local_variable_ (nullptr),
-    sp_ (0) {};
-
 JavaVM::Frame::Frame(uint16_t size_stack,
                      uint16_t size_locals) :
-        size_operand_stack_(size_stack),
-        size_local_variable_(size_locals)
-{
-    operand_stack_  = new uint64_t [size_operand_stack_];
-    local_variable_ = new uint8_t [size_local_variable_];
-};
+      size_operand_stack_(size_stack),
+      operand_stack_(new uint64_t [size_operand_stack_]),
+      size_local_variable_(size_locals),
+      local_variable_(new uint8_t [size_local_variable_]),
+      memory_(operand_stack_, operand_stack_ + size_operand_stack_),
+      gc_(memory_)
+{};
 
 JavaVM::Frame::~Frame() {
     delete [] operand_stack_;
@@ -317,6 +308,8 @@ void JavaVM::Frame::CreateStackAndLocalVars(uint16_t size_stack,
 
     operand_stack_  = new uint64_t [size_operand_stack_];
     local_variable_ = new uint8_t [size_local_variable_];
+
+    memory_ = Memory(operand_stack_, operand_stack_ + size_operand_stack_);
 }
 
 void JavaVM::MethodInfo::CodeAttribute::SetValues(uint16_t max_stack,

@@ -26,6 +26,8 @@ public:
         Block::MakeAtAddress(aspace_.lowest(), size_);
     }
 
+    Memory& operator=(Memory&&) = default;
+
     bool NoOverlappingAndNoHoles() const {
         bool result = true;
         const Block* prev = nullptr;
@@ -81,7 +83,7 @@ public:
         assert(b.Splittable());
 
         // sz is aligned and adjusted by block header size
-        assert(sz > Block::HeaderSize);
+        assert(sz > Block::HeaderSize());
 
         Size old_sz = b.GetSize();
         Address old_addr = b.GetAddress();
@@ -113,7 +115,7 @@ public:
     }
 
     void* alloc(size_t sz) {
-        const Size size = (Block::HeaderSize + Size{sz}).Align();
+        const Size size = (Block::HeaderSize() + Size{sz}).Align();
         Block& block = FindSuitableForAllocation(size);
 
         assert(block.IsFree());
@@ -121,7 +123,7 @@ public:
         free_size_ = free_size_ - size;
         occupied_size_ = occupied_size_ + size;
 
-        if (block.GetSize() > size + Block::HeaderSize) {
+        if (block.GetSize() > size + Block::HeaderSize()) {
             Block& b = Split(block, size);
             b.SetOccupied(true);
             return b.ToUserData();
@@ -210,8 +212,8 @@ public:
     }
 
 private:
-    const AddrSpace aspace_;
-    const Size size_;
+    AddrSpace aspace_;
+    Size size_;
     Size free_size_;
     Size occupied_size_;
 
@@ -220,7 +222,7 @@ private:
     friend std::ostream& operator<<(std::ostream& os, const Memory& mem);
 };
 
-std::ostream& operator<<(std::ostream& os, const Memory& mem) {
+inline std::ostream& operator<<(std::ostream& os, const Memory& mem) {
     os << "=========== MEM DUMP ===========" << std::endl;
     os << "memory total size: " << mem.MemSize() << std::endl;
     os << "memory free size: " << mem.FreeSize() << std::endl;
