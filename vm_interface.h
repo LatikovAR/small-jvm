@@ -11,7 +11,7 @@
 
 #define CONST_PULL_SIZE 8
 #define MAX_FUNCTIONS 10
-#define STACK_SIZE 255
+#define STACK_SIZE 1024
 #define LOCAL_SIZE 10
 
 
@@ -21,8 +21,12 @@
 
 
 class JavaVM {
-    // uint64_t stack_[STACK_SIZE];
-    uint64_t* const_pull_[CONST_PULL_SIZE]; 
+    uint64_t* const_pull_[CONST_PULL_SIZE];
+
+    uint64_t stack_[STACK_SIZE];
+
+    Memory memory_;
+    Gc gc_;
 
     // Programm counter
     uint8_t pc_ = 0;
@@ -64,24 +68,20 @@ private:
 private:
     class Frame {
     public:
+        Allocator<uint64_t> allocator_;
+
         uint16_t size_operand_stack_;
         uint64_t* operand_stack_;
         uint64_t return_value_;
 
 
         uint16_t size_local_variable_;
-        uint8_t* local_variable_;
+        uint64_t* local_variable_;
         uint64_t sp_;
 
-        Memory memory_;
-        Gc gc_;
     public:
-        Frame();
-        Frame(uint16_t size_stack, uint16_t size_locals);
+        Frame(uint16_t size_stack, uint16_t size_locals, Memory &memory);
         ~Frame();
-
-        void CreateStackAndLocalVars(uint16_t size_stack,
-                                     uint16_t size_locals);
     };
 
 

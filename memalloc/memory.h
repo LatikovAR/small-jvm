@@ -26,8 +26,6 @@ public:
         Block::MakeAtAddress(aspace_.lowest(), size_);
     }
 
-    Memory& operator=(Memory&&) = default;
-
     bool NoOverlappingAndNoHoles() const {
         bool result = true;
         const Block* prev = nullptr;
@@ -256,7 +254,7 @@ public:
         return reinterpret_cast<pointer>(memory_.alloc(n * sizeof(T)));
     }
 
-    void deallocate(pointer p, size_type n) {
+    void deallocate(pointer p) {
         memory_.free(p);
     }
 

@@ -7,10 +7,13 @@
 #include "gc.h"
 
 
-JavaVM::JavaVM() {
+JavaVM::JavaVM()
+    : memory_{stack_, stack_ + STACK_SIZE}
+    , gc_{memory_}
+{
     // 1. TODO - fill const pull
     memset(const_pull_, 0, CONST_PULL_SIZE * sizeof(const_pull_[0]));
-    // TODO - support dynamic frames 
+    // TODO - support dynamic frames
 
     // 2. Initialize pc
     pc_ = 0;
@@ -78,6 +81,7 @@ void JavaVM::Execute(uint8_t* bc) {
                 break;
             }
 
+            //Not gc for ireturn. Also check this realization for validity.
             case(ireturn) : {
                 uint64_t ret = curr_frame_->operand_stack_[curr_frame_->sp_];
                 curr_frame_->sp_--;
@@ -213,7 +217,8 @@ void JavaVM::Execute_bipush(uint8_t* bc) {
 void JavaVM::CreateFrame(MethodInfo* info) {
     fp_++;
     Frame* new_frame = new Frame(info->code_info_.max_stack_,
-                                 info->code_info_.max_locals_);
+                                 info->code_info_.max_locals_,
+                                 memory_);
     frame_[fp_] = new_frame;
     curr_frame_ = new_frame;
 }
@@ -225,7 +230,7 @@ void JavaVM::DeleteFrame() {
 }
 
 void JavaVM::CreateFirstFrame() {
-    curr_frame_ = new Frame(STACK_SIZE, LOCAL_SIZE);
+    curr_frame_ = new Frame(STACK_SIZE, LOCAL_SIZE, memory_);
     frame_[fp_] = curr_frame_; 
 }
 
@@ -284,32 +289,18 @@ void JavaVM::MethodInfo::CodeAttribute::UploadCode(
 }
 
 JavaVM::Frame::Frame(uint16_t size_stack,
-                     uint16_t size_locals) :
+                     uint16_t size_locals,
+                     Memory& memory) :
+      allocator_(memory),
       size_operand_stack_(size_stack),
-      operand_stack_(new uint64_t [size_operand_stack_]),
+      operand_stack_(allocator_.allocate(size_operand_stack_)),
       size_local_variable_(size_locals),
-      local_variable_(new uint8_t [size_local_variable_]),
-      memory_(operand_stack_, operand_stack_ + size_operand_stack_),
-      gc_(memory_)
+      local_variable_(allocator_.allocate(size_local_variable_))
 {};
 
 JavaVM::Frame::~Frame() {
-    delete [] operand_stack_;
-    delete [] local_variable_;
-}
-
-void JavaVM::Frame::CreateStackAndLocalVars(uint16_t size_stack,
-                                            uint16_t size_locals) {
-    if (operand_stack_ || local_variable_)
-        throw;
-
-    size_operand_stack_ = size_stack;
-    size_local_variable_= size_locals;
-
-    operand_stack_  = new uint64_t [size_operand_stack_];
-    local_variable_ = new uint8_t [size_local_variable_];
-
-    memory_ = Memory(operand_stack_, operand_stack_ + size_operand_stack_);
+    allocator_.deallocate(operand_stack_);
+    allocator_.deallocate(local_variable_);
 }
 
 void JavaVM::MethodInfo::CodeAttribute::SetValues(uint16_t max_stack,
