@@ -230,7 +230,7 @@ void JavaVM::DeleteFrame() {
 }
 
 void JavaVM::CreateFirstFrame() {
-    curr_frame_ = new Frame(STACK_SIZE, LOCAL_SIZE, memory_);
+    curr_frame_ = new Frame(FIRST_FRAME_STACK_SIZE, LOCAL_SIZE, memory_);
     frame_[fp_] = curr_frame_; 
 }
 
@@ -295,7 +295,8 @@ JavaVM::Frame::Frame(uint16_t size_stack,
       size_operand_stack_(size_stack),
       operand_stack_(allocator_.allocate(size_operand_stack_)),
       size_local_variable_(size_locals),
-      local_variable_(allocator_.allocate(size_local_variable_))
+      local_variable_(allocator_.allocate(size_local_variable_)),
+      sp_(0)
 {};
 
 JavaVM::Frame::~Frame() {

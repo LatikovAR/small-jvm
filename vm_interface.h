@@ -12,6 +12,7 @@
 #define CONST_PULL_SIZE 8
 #define MAX_FUNCTIONS 10
 #define STACK_SIZE 1024
+#define FIRST_FRAME_STACK_SIZE 50
 #define LOCAL_SIZE 10
 
 
