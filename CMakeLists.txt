@@ -11,6 +11,7 @@ endif ()
 set(SOURCE_LIST
     main.cpp
     test.cpp
+    vm_gc_test.cpp
     vm.cpp
 )
 

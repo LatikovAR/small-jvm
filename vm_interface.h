@@ -144,6 +144,9 @@ public:
     void CreateFrame(MethodInfo* info);
     void DeleteFrame();
 
+    //for tests
+    static void test_manual_mem_collection();
+    static void test_gc_mem_collection();
 };
 
 #endif // VM_INTERFACE_H
