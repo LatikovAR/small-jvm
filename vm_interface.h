@@ -71,13 +71,11 @@ private:
     public:
         Allocator<uint64_t> allocator_;
 
+        uint16_t size_local_variable_;
         uint16_t size_operand_stack_;
+        uint64_t* local_variable_;
         uint64_t* operand_stack_;
         uint64_t return_value_;
-
-
-        uint16_t size_local_variable_;
-        uint64_t* local_variable_;
         uint64_t sp_;
 
     public:

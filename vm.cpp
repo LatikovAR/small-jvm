@@ -292,15 +292,14 @@ JavaVM::Frame::Frame(uint16_t size_stack,
                      uint16_t size_locals,
                      Memory& memory) :
       allocator_(memory),
-      size_operand_stack_(size_stack),
-      operand_stack_(allocator_.allocate(size_operand_stack_)),
       size_local_variable_(size_locals),
-      local_variable_(allocator_.allocate(size_local_variable_)),
+      size_operand_stack_(size_stack),
+      local_variable_(allocator_.allocate(size_local_variable_ + size_operand_stack_)),
+      operand_stack_(local_variable_ + size_local_variable_),
       sp_(0)
 {};
 
 JavaVM::Frame::~Frame() {
-    allocator_.deallocate(operand_stack_);
     allocator_.deallocate(local_variable_);
 }
 

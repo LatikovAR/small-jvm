@@ -1,7 +1,7 @@
 #pragma once
 
 struct GcInfo {
-    bool marked;
-    bool to_be_checked;
-    bool root;
+    bool marked = false;
+    bool to_be_checked = false;
+    bool root = false;
 };
