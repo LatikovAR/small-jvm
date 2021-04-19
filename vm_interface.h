@@ -81,6 +81,7 @@ private:
     public:
         Frame(uint16_t size_stack, uint16_t size_locals, Memory &memory);
         ~Frame();
+        void* mem_ptr_for_gc() const { return local_variable_; }
     };
 
 

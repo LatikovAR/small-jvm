@@ -300,7 +300,7 @@ JavaVM::Frame::Frame(uint16_t size_stack,
 {};
 
 JavaVM::Frame::~Frame() {
-    allocator_.deallocate(local_variable_);
+    //allocator_.deallocate(local_variable_); --- this work for gc
 }
 
 void JavaVM::MethodInfo::CodeAttribute::SetValues(uint16_t max_stack,

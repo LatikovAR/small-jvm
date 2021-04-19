@@ -41,30 +41,49 @@ void JavaVM::test_manual_mem_collection() {
     vm.frame_[6] = new Frame(1, 1, vm.memory_);
     vm.frame_[7] = new Frame(1, 1, vm.memory_);
 
+    vm.gc_.RegisterRootObject(vm.frame_[0]->mem_ptr_for_gc());
+    vm.gc_.RegisterRootObject(vm.frame_[1]->mem_ptr_for_gc());
+    vm.gc_.RegisterRootObject(vm.frame_[2]->mem_ptr_for_gc());
+    vm.gc_.RegisterRootObject(vm.frame_[3]->mem_ptr_for_gc());
+    vm.gc_.RegisterRootObject(vm.frame_[4]->mem_ptr_for_gc());
+    vm.gc_.RegisterRootObject(vm.frame_[5]->mem_ptr_for_gc());
+    vm.gc_.RegisterRootObject(vm.frame_[6]->mem_ptr_for_gc());
+    vm.gc_.RegisterRootObject(vm.frame_[7]->mem_ptr_for_gc());
+
     #ifdef LOG_ON
     std::cout << "All frames allocated\n\r";
     std::cout << vm.memory_ << "\n\r\n\r";
     #endif
 
+    vm.gc_.UnregisterRootObject(vm.frame_[7]->mem_ptr_for_gc());
     delete vm.frame_[7];
+    vm.gc_.FullGc();
 
     #ifdef LOG_ON
     std::cout << "Root frame 7 deleted\n\r";
     std::cout << vm.memory_ << "\n\r\n\r";
     #endif
 
+    vm.gc_.UnregisterRootObject(vm.frame_[2]->mem_ptr_for_gc());
+    vm.gc_.UnregisterRootObject(vm.frame_[6]->mem_ptr_for_gc());
     delete vm.frame_[2];
     delete vm.frame_[6];
+    vm.gc_.FullGc();
 
     #ifdef LOG_ON
     std::cout << "Root frame 2 deleted\n\r";
     std::cout << vm.memory_ << "\n\r\n\r";
     #endif
 
+    vm.gc_.UnregisterRootObject(vm.frame_[1]->mem_ptr_for_gc());
+    vm.gc_.UnregisterRootObject(vm.frame_[3]->mem_ptr_for_gc());
+    vm.gc_.UnregisterRootObject(vm.frame_[4]->mem_ptr_for_gc());
+    vm.gc_.UnregisterRootObject(vm.frame_[5]->mem_ptr_for_gc());
     delete vm.frame_[1];
     delete vm.frame_[3];
     delete vm.frame_[4];
     delete vm.frame_[5];
+    vm.gc_.FullGc();
 
     #ifdef LOG_ON
     std::cout << "Root frame 1 deleted\n\r";
