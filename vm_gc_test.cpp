@@ -12,9 +12,8 @@
  * Mem structure and dependency tree the same in both tests.
  *
  * First of all builds the simple dependency tree:
- * frame 0 - created with vm constructor so won't use it
  * 1, 2, 7 - root frames
- * dependencies: 1 -> 3, 1 -> 4, 4 -> 5, 2 -> 4, 2 -> 6
+ * dependencies: 1 -> 3, 2 -> 4, 4 -> 5, 2 -> 4, 2 -> 6
  *
  * Then checks deleting root frames in order:
  * 7, 2, 1
@@ -33,13 +32,14 @@ void JavaVM::test_manual_mem_collection() {
     std::cout << "Test_manual_mem_collection started\n\r\n\r";
     #endif
 
-    vm.frame_[1] = new Frame(1, 1, vm.memory_);
-    vm.frame_[2] = new Frame(1, 1, vm.memory_);
-    vm.frame_[3] = new Frame(1, 1, vm.memory_);
-    vm.frame_[4] = new Frame(1, 1, vm.memory_);
-    vm.frame_[5] = new Frame(1, 1, vm.memory_);
-    vm.frame_[6] = new Frame(1, 1, vm.memory_);
-    vm.frame_[7] = new Frame(1, 1, vm.memory_);
+    //only for test
+    MethodInfo def_info;
+    def_info.code_info_.max_stack_ = 1;
+    def_info.code_info_.max_locals_ = 1;
+
+    for(size_t i = 0; i < 7; ++i) {
+        vm.CreateFrame(&def_info);
+    }
 
     vm.gc_.RegisterRootObject(vm.frame_[0]->mem_ptr_for_gc());
     vm.gc_.RegisterRootObject(vm.frame_[1]->mem_ptr_for_gc());
@@ -56,7 +56,6 @@ void JavaVM::test_manual_mem_collection() {
     #endif
 
     vm.gc_.UnregisterRootObject(vm.frame_[7]->mem_ptr_for_gc());
-    delete vm.frame_[7];
     vm.gc_.FullGc();
 
     #ifdef LOG_ON
@@ -66,8 +65,6 @@ void JavaVM::test_manual_mem_collection() {
 
     vm.gc_.UnregisterRootObject(vm.frame_[2]->mem_ptr_for_gc());
     vm.gc_.UnregisterRootObject(vm.frame_[6]->mem_ptr_for_gc());
-    delete vm.frame_[2];
-    delete vm.frame_[6];
     vm.gc_.FullGc();
 
     #ifdef LOG_ON
@@ -79,10 +76,6 @@ void JavaVM::test_manual_mem_collection() {
     vm.gc_.UnregisterRootObject(vm.frame_[3]->mem_ptr_for_gc());
     vm.gc_.UnregisterRootObject(vm.frame_[4]->mem_ptr_for_gc());
     vm.gc_.UnregisterRootObject(vm.frame_[5]->mem_ptr_for_gc());
-    delete vm.frame_[1];
-    delete vm.frame_[3];
-    delete vm.frame_[4];
-    delete vm.frame_[5];
     vm.gc_.FullGc();
 
     #ifdef LOG_ON
@@ -100,13 +93,14 @@ void JavaVM::test_gc_mem_collection() {
     std::cout << "Test_gc_mem_collection started\n\r";
     #endif
 
-    vm.frame_[1] = new Frame(1, 1, vm.memory_);
-    vm.frame_[2] = new Frame(1, 1, vm.memory_);
-    vm.frame_[3] = new Frame(1, 1, vm.memory_);
-    vm.frame_[4] = new Frame(1, 1, vm.memory_);
-    vm.frame_[5] = new Frame(1, 1, vm.memory_);
-    vm.frame_[6] = new Frame(1, 1, vm.memory_);
-    vm.frame_[7] = new Frame(1, 1, vm.memory_);
+    //only for test
+    MethodInfo def_info;
+    def_info.code_info_.max_stack_ = 1;
+    def_info.code_info_.max_locals_ = 1;
+
+    for(size_t i = 0; i < 7; ++i) {
+        vm.CreateFrame(&def_info);
+    }
 
     vm.gc_.RegisterRootObject(vm.frame_[1]);
     vm.gc_.RegisterRootObject(vm.frame_[2]);

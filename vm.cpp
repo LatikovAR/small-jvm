@@ -17,17 +17,16 @@ JavaVM::JavaVM()
 
     // 2. Initialize pc
     pc_ = 0;
-    CreateFirstFrame();
+
+    //for first frame
+    MethodInfo def_info;
+    def_info.code_info_.max_stack_ = DEFAULT_FRAME_STACK_SIZE;
+    def_info.code_info_.max_locals_ = DEFAULT_LOCALS_SIZE;
+
+    CreateFrame(&def_info);
 }
 
-JavaVM::~JavaVM() {
-    DeleteFirstFrame();
-}
-
-void JavaVM::DeleteFirstFrame() {
-    delete frame_[fp_];
-    frame_[fp_] = nullptr;
-}
+JavaVM::~JavaVM() {}
 
 void JavaVM::Execute(uint8_t* bc) {
     // TODO Stack owerflow
@@ -70,9 +69,7 @@ void JavaVM::Execute(uint8_t* bc) {
 
             case(return_) : {
                 // TODO support frame removing and return from methods
-                if (fp_ == 0) {
-                    return;
-                }
+                return;
                 break;
             }
 
@@ -215,23 +212,32 @@ void JavaVM::Execute_bipush(uint8_t* bc) {
 }
 
 void JavaVM::CreateFrame(MethodInfo* info) {
-    fp_++;
-    Frame* new_frame = new Frame(info->code_info_.max_stack_,
-                                 info->code_info_.max_locals_,
-                                 memory_);
+    if(curr_frame_ != nullptr) fp_++;
+
+    void* mem = memory_.alloc(sizeof(Frame) +
+                              (info->code_info_.max_stack_ +
+                               info->code_info_.max_locals_) *
+                              sizeof(uint64_t));
+
+    uint64_t* frame_data = reinterpret_cast<uint64_t*>((reinterpret_cast<Frame*>(mem) + 1));
+
+    Frame* new_frame = new (mem) Frame(info->code_info_.max_stack_,
+                                       info->code_info_.max_locals_,
+                                       frame_data);
     frame_[fp_] = new_frame;
     curr_frame_ = new_frame;
 }
 
 void JavaVM::DeleteFrame() {
-    delete curr_frame_;
+    if(curr_frame_ == nullptr) return;
+
+    if(fp_ == 0) {
+        curr_frame_ = nullptr;
+        return;
+    }
+
     fp_--;
     curr_frame_ = frame_[fp_];
-}
-
-void JavaVM::CreateFirstFrame() {
-    curr_frame_ = new Frame(FIRST_FRAME_STACK_SIZE, LOCAL_SIZE, memory_);
-    frame_[fp_] = curr_frame_; 
 }
 
 
@@ -290,11 +296,10 @@ void JavaVM::MethodInfo::CodeAttribute::UploadCode(
 
 JavaVM::Frame::Frame(uint16_t size_stack,
                      uint16_t size_locals,
-                     Memory& memory) :
-      allocator_(memory),
+                     uint64_t *data_memory) :
       size_local_variable_(size_locals),
       size_operand_stack_(size_stack),
-      local_variable_(allocator_.allocate(size_local_variable_ + size_operand_stack_)),
+      local_variable_(data_memory),
       operand_stack_(local_variable_ + size_local_variable_),
       sp_(0)
 {};

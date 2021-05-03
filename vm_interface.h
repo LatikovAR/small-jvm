@@ -11,13 +11,13 @@
 
 #define CONST_PULL_SIZE 8
 #define MAX_FUNCTIONS 10
-#define STACK_SIZE 1024
-#define FIRST_FRAME_STACK_SIZE 50
-#define LOCAL_SIZE 10
+#define STACK_SIZE 32768
+#define DEFAULT_FRAME_STACK_SIZE 256
+#define DEFAULT_LOCALS_SIZE 64
 
 
 // TODO - dynamic frame
-#define FRAME_SIZE 10
+#define FRAME_NUM 10
 #define LOG_ON
 
 
@@ -27,6 +27,7 @@ class JavaVM {
     uint64_t stack_[STACK_SIZE];
 
     Memory memory_;
+
     Gc gc_;
 
     // Programm counter
@@ -69,8 +70,6 @@ private:
 private:
     class Frame {
     public:
-        Allocator<uint64_t> allocator_;
-
         uint16_t size_local_variable_;
         uint16_t size_operand_stack_;
         uint64_t* local_variable_;
@@ -79,21 +78,18 @@ private:
         uint64_t sp_;
 
     public:
-        Frame(uint16_t size_stack, uint16_t size_locals, Memory &memory);
+        Frame(uint16_t size_stack, uint16_t size_locals, uint64_t* data_memory);
         ~Frame();
-        void* mem_ptr_for_gc() const { return local_variable_; }
+        void* mem_ptr_for_gc() { return this; }
     };
 
 
     // ONLY for ONE thread
-    Frame* frame_[FRAME_SIZE];
-    Frame* curr_frame_;
+    Frame* frame_[FRAME_NUM];
+    Frame* curr_frame_ = nullptr;
     // TODO Move to local variable
     uint64_t fp_ = 0;
 
-
-    void CreateFirstFrame();
-    void DeleteFirstFrame();
 public:
 
     // It is SIMPLE version
