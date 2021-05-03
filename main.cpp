@@ -26,7 +26,7 @@ void vTask() {
         RunTest(ONE_TEST, invokestatic);
 
         JavaVM::test_manual_mem_collection();
-        JavaVM::test_gc_mem_collection();
+        //JavaVM::test_gc_mem_collection();
         break;
 #ifndef NO_FREERTOS
         vTaskDelay(2000 / portTICK_RATE_MS);
