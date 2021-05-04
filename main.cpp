@@ -15,7 +15,6 @@
 void vTask() {
     printf(" Task created\n\r");
     while (1) {
-        /*
         RunTest(ONE_TEST, iconst_0);
         RunTest(ONE_TEST, iconst_1);
         RunTest(ONE_TEST, iconst_2);
@@ -25,9 +24,9 @@ void vTask() {
         RunTest(ONE_TEST, iand);
         RunTest(ONE_TEST, iadd);
         RunTest(ONE_TEST, invokestatic);
-        */
+
         JavaVM::test_manual_mem_collection();
-        //JavaVM::test_gc_mem_collection();
+        JavaVM::test_gc_mem_collection();
         break;
 #ifndef NO_FREERTOS
         vTaskDelay(2000 / portTICK_RATE_MS);

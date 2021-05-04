@@ -95,29 +95,35 @@ void JavaVM::test_gc_mem_collection() {
 
     //only for test
     MethodInfo def_info;
-    def_info.code_info_.max_stack_ = 1;
+    def_info.code_info_.max_stack_ = 8;
     def_info.code_info_.max_locals_ = 1;
 
     for(size_t i = 0; i < 7; ++i) {
         vm.CreateFrame(&def_info);
     }
 
-    vm.gc_.RegisterRootObject(vm.frame_[1]);
-    vm.gc_.RegisterRootObject(vm.frame_[2]);
-    vm.gc_.RegisterRootObject(vm.frame_[7]);
+    vm.gc_.RegisterRootObject(vm.frame_[0]->mem_ptr_for_gc());
+    vm.gc_.RegisterRootObject(vm.frame_[1]->mem_ptr_for_gc());
+    vm.gc_.RegisterRootObject(vm.frame_[2]->mem_ptr_for_gc());
+    vm.gc_.RegisterRootObject(vm.frame_[7]->mem_ptr_for_gc());
 
-    vm.gc_.LinkToObj(vm.frame_[1], vm.frame_[3]);
-    vm.gc_.LinkToObj(vm.frame_[1], vm.frame_[4]);
-    vm.gc_.LinkToObj(vm.frame_[2], vm.frame_[4]);
-    vm.gc_.LinkToObj(vm.frame_[2], vm.frame_[6]);
-    vm.gc_.LinkToObj(vm.frame_[4], vm.frame_[5]);
+    vm.frame_[1]->operand_stack_[0] =
+            reinterpret_cast<uint64_t>(vm.gc_.LinkToObj(vm.frame_[1], vm.frame_[3]));
+    vm.frame_[1]->operand_stack_[1] =
+            reinterpret_cast<uint64_t>(vm.gc_.LinkToObj(vm.frame_[1], vm.frame_[4]));
+    vm.frame_[2]->operand_stack_[0] =
+            reinterpret_cast<uint64_t>(vm.gc_.LinkToObj(vm.frame_[2], vm.frame_[4]));
+    vm.frame_[2]->operand_stack_[1] =
+            reinterpret_cast<uint64_t>(vm.gc_.LinkToObj(vm.frame_[2], vm.frame_[6]));
+    vm.frame_[4]->operand_stack_[0] =
+            reinterpret_cast<uint64_t>(vm.gc_.LinkToObj(vm.frame_[4], vm.frame_[5]));
 
     #ifdef LOG_ON
     std::cout << "All frames allocated\n\r";
     std::cout << vm.memory_ << "\n\r\n\r";
     #endif
 
-    vm.gc_.UnregisterRootObject(vm.frame_[7]);
+    vm.gc_.UnregisterRootObject(vm.frame_[7]->mem_ptr_for_gc());
     vm.gc_.FullGc();
 
     #ifdef LOG_ON
@@ -125,7 +131,7 @@ void JavaVM::test_gc_mem_collection() {
     std::cout << vm.memory_ << "\n\r\n\r";
     #endif
 
-    vm.gc_.UnregisterRootObject(vm.frame_[2]);
+    vm.gc_.UnregisterRootObject(vm.frame_[2]->mem_ptr_for_gc());
     vm.gc_.FullGc();
 
     #ifdef LOG_ON
@@ -133,7 +139,7 @@ void JavaVM::test_gc_mem_collection() {
     std::cout << vm.memory_ << "\n\r\n\r";
     #endif
 
-    vm.gc_.UnregisterRootObject(vm.frame_[1]);
+    vm.gc_.UnregisterRootObject(vm.frame_[1]->mem_ptr_for_gc());
     vm.gc_.FullGc();
 
     #ifdef LOG_ON

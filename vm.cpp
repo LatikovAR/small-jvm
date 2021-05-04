@@ -302,7 +302,14 @@ JavaVM::Frame::Frame(uint16_t size_stack,
       local_variable_(data_memory),
       operand_stack_(local_variable_ + size_local_variable_),
       sp_(0)
-{};
+{
+    for(size_t i = 0; i < size_operand_stack_; ++i) {
+        operand_stack_[i] = 0;
+    }
+    for(size_t i = 0; i < size_local_variable_; ++i) {
+        local_variable_[i] = 0;
+    }
+};
 
 JavaVM::Frame::~Frame() {
     //allocator_.deallocate(local_variable_); --- this work for gc

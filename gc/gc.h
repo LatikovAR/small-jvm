@@ -87,10 +87,6 @@ public:
         GcCollect();
     }
 private:
-    //This method tries to find some pointers to other blocks in blk data
-    //After that this blocks should be marked to refuse deleting
-    //Sometimes it finds excess adresses and gc doesn't clean all that need
-    //Reasons aren't clear
     template <typename Handler>
     void IterateObjPointers(const Block& blk, Handler&& handler) {
         void **ptr = reinterpret_cast<void**>(blk.ToUserData());
